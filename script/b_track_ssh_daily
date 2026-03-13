@@ -1,0 +1,54 @@
+#!/bin/bash
+#echo "Enter Date eg. "Dec. 1""
+ now=$(date +"%F")
+ m=$(date | awk '{print $2}')
+ dta=$(date | awk '{print $3}') 
+x=1
+y=10
+
+        if [ $dta -lt $y ] || [ $dta -eq $y ]
+                then
+                        d=$(date -d "1 day ago" '+%b %_d')
+                else
+                        d=$(date -d "1 day ago" '+%b %_d')
+        fi
+
+echo "$d"
+echo .
+
+sleep 30
+rm  ~/ssh_failed_sortlisted_logins.txt
+#"You were attacked from following IPs"
+find /var/log -name "secure*" -exec cat {} \; | grep ssh| grep  "$d" | grep  -i Failed |   grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | sort -u > ~/ssh_failed_sortlisted_logins.txt
+
+
+rm ~/1.txt
+rm ~/2.txt
+rm ~/3.htm
+cat ~/ssh_failed_sortlisted_logins.txt | \
+
+while read ip
+do
+	whois $ip | grep -i country 
+		if [ $? -eq 0 ]
+			then
+				clear
+				echo $ip >> ~/1.txt
+				whois $ip | grep -i country | tr "a-z" "A-Z" | sort -u >> ~/1.txt
+		else  
+				echo "$ip"  >> ~/1.txt
+		      		echo "COUNTRY:      UNKNOWN" >> ~/1.txt
+		fi
+done
+
+#echo -e '\E[47;31m'"You were attacked by all IPs below from following countries on "$d"""\033[1m\033[0m" > ~/3.htm
+echo -e You were attacked by all IPs below from following countries on "$d" > ~/3.htm
+echo 
+sleep 1
+cat ~/1.txt >> ~/3.htm
+echo 
+echo 
+x=$(find /var/log -name "secure*" -exec cat {} \; | grep ssh| grep  "$d" | grep -i Failed |   grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" |  wc -l)
+#echo -e '\E[37;44m'"\033[1m "Total Failed Login Attempts on "$d" is "$x""\033[0m" >> ~/3.htm
+echo -e Total Failed Login Attempts on "$d" is "$x" >> ~/3.htm
+cat ~/3.htm  >> /reports/"$now".txt
